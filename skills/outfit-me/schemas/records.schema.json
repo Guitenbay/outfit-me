@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:outfit-me:record-envelope:v1",
+  "title": "Outfit Me record envelope",
+  "description": "Common interchange envelope only. Kind-specific validation, secrets checks and relational constraints are enforced by scripts/store.py. This is not a complete per-kind schema.",
+  "type": "object",
+  "required": ["id", "schema_version"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+    "schema_version": {"type": "integer", "const": 1},
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": true
+}

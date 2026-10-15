@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "JD Taobao Authorized Tab Bridge",
+  "version": "0.1.0",
+  "description": "Lets the local read-only MCP use only the shopping tab you explicitly select.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "optional_host_permissions": ["https://www.jd.com/*", "https://search.jd.com/*", "https://item.jd.com/*", "https://www.taobao.com/*", "https://s.taobao.com/*", "https://s.m.taobao.com/*", "https://item.taobao.com/*", "https://www.tmall.com/*", "https://detail.tmall.com/*"],
+  "background": {"service_worker": "service-worker.js"},
+  "action": {
+    "default_title": "Authorized shopping tab",
+    "default_popup": "popup.html"
+  }
+}

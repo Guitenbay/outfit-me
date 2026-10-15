@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 300px; margin: 0; padding: 16px; font: 14px/1.5 system-ui, sans-serif; color: #18212b; }
+    h1 { margin: 0 0 12px; font-size: 17px; }
+    label { display: block; margin: 10px 0 4px; font-weight: 600; }
+    input { box-sizing: border-box; width: 100%; padding: 7px; }
+    .actions { display: flex; gap: 8px; margin-top: 14px; }
+    button { flex: 1; padding: 8px; cursor: pointer; }
+    #status { margin-top: 12px; min-height: 42px; color: #44505e; }
+    .warning { color: #8a3b12; }
+  </style>
+</head>
+<body>
+  <h1>授权购物标签页</h1>
+  <label for="port">本机端口</label>
+  <input id="port" type="number" min="1024" max="65535" value="8765">
+  <label for="token">桥接令牌</label>
+  <input id="token" type="password" autocomplete="off" placeholder="与 MCP 配置一致">
+  <div id="state-jd" role="status">京东：正在读取…</div>
+  <div id="state-taobao" role="status">淘宝/天猫：正在读取…</div>
+  <p id="current" role="status">正在读取当前标签页…</p>
+  <button id="refresh">刷新状态</button>
+  <div class="actions">
+    <button id="attach" disabled aria-describedby="attach-reason">授权当前标签页</button>
+    <button id="detach-jd">断开京东</button>
+    <button id="detach-taobao">断开淘宝</button>
+  </div>
+  <p id="attach-reason" role="status"></p>
+  <div id="status" role="status">切换标签页不会撤销授权。连接状态不是网站登录状态；扫码或安全验证仍需手动完成。</div>
+  <script src="popup.js"></script>
+</body>
+</html>

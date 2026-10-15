@@ -1,0 +1,18 @@
+# Replace <PROJECT_DIR> with the absolute path to this project.
+[mcp_servers.jd_taobao_browser]
+command = "<PROJECT_DIR>/.venv/Scripts/python.exe"
+args = ["<PROJECT_DIR>/server.py"]
+cwd = "<PROJECT_DIR>"
+enabled = true
+required = false
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+default_tools_approval_mode = "prompt"
+
+[mcp_servers.jd_taobao_browser.env]
+PLAYWRIGHT_HEADLESS = "false"
+ALLOW_STATE_CHANGING_ACTIONS = "false"
+PLAYWRIGHT_BROWSERS_PATH = ".ms-playwright"
+BROWSER_PROFILE_DIR = ".tmp/browser-profile"
+ARTIFACTS_DIR = "artifacts"
+TAOBAO_SEARCH_MODE = "mobile"

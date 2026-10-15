@@ -1,0 +1,32 @@
+# Local private payloads and real host configuration
+private-data/
+**/private-data/
+.mcp.json
+**/.mcp.json
+.env
+.env.*
+!.env.example
+!**/.env.example
+.claude/
+*.sqlite*
+*.db
+*.db-*
+*.pem
+*.key
+cookies.json
+storage-state*.json
+# Build/runtime outputs
+.git/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+node_modules/
+artifacts/
+dist/
+build/
+*.egg-info/
+*.log
+.DS_Store
