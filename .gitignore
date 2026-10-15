@@ -29,4 +29,7 @@ dist/
 build/
 *.egg-info/
 *.log
+*.tgz
+.mcp.json.backup-*
+.mcp.json.stage-*
 .DS_Store

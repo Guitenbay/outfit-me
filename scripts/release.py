@@ -15,7 +15,7 @@ CORE = (
 )
 PUBLIC = ('README.md', '.gitignore', 'THIRD_PARTY_NOTICES.md', 'docs/PRODUCT.md',
           'docs/INSTALL.md', 'config_examples/mcp-client.json', 'scripts/release.py', 'tests/test_release.py',
-          'LICENSE')
+          'LICENSE', '.gitattributes', 'package.json', 'bin/setup.cjs', 'tests/setup.test.cjs', 'docs/SETUP.md')
 COMMERCE = (
     'LICENSE', 'pyproject.toml', 'README.md', 'SECURITY.md', '.env.example', '.gitignore', 'server.py',
     *('jd_taobao_mcp/' + n + '.py' for n in ('__init__', 'browser', 'config', 'extension_bridge', 'safety', 'service')),
@@ -93,7 +93,7 @@ def inventory(root=ROOT):
 
 def refresh(root=ROOT):
     data = {'schema_version': 1, 'files': inventory(root)}
-    (root / MANIFEST).write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    (root / MANIFEST).write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     return len(data['files'])
 
 

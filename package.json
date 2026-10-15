@@ -1,0 +1,25 @@
+{
+  "name": "outfit-me-agent",
+  "version": "0.1.0",
+  "description": "Dependency-free installer for the Outfit Me agent skill",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "bin": { "outfit-me-agent": "bin/setup.cjs" },
+  "files": [
+    "bin/setup.cjs",
+    "skills/outfit-me/",
+    "tests/setup.test.cjs",
+    "integrations/commerce-browser-mcp/LICENSE",
+    "integrations/commerce-browser-mcp/README.md",
+    "integrations/commerce-browser-mcp/SECURITY.md",
+    "integrations/commerce-browser-mcp/pyproject.toml",
+    "integrations/commerce-browser-mcp/server.py",
+    "integrations/commerce-browser-mcp/jd_taobao_mcp/**/*.py",
+    "integrations/commerce-browser-mcp/chrome-extension/",
+    "README.md",
+    "LICENSE",
+    "docs/SETUP.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": { "test": "node --test tests/setup.test.cjs" }
+}

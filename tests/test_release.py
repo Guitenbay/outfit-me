@@ -14,6 +14,59 @@ class ReleaseTests(unittest.TestCase):
     def test_manifest_matches_exact_allowlist(self):
         self.assertGreater(release.verify(), 0)
 
+    def minimal_release(self, root):
+        for name in release.CORE + release.PUBLIC:
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b'synthetic\n')
+        release.refresh(root)
+
+    def test_git_metadata_pruned_without_reading_or_following(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.minimal_release(root)
+            metadata = root / '.git'
+            metadata.mkdir()
+            (metadata / 'private.db').write_bytes(b'not utf8: \xff')
+            (metadata / 'config').write_text('private synthetic metadata', encoding='utf-8')
+            self.assertGreater(release.verify(root), 0)
+            with tempfile.TemporaryDirectory() as outside:
+                (metadata / 'private.db').unlink()
+                (metadata / 'config').unlink()
+                metadata.rmdir()
+                try:
+                    metadata.symlink_to(outside, target_is_directory=True)
+                except OSError:
+                    return  # Directory case above always runs on Windows.
+                self.assertGreater(release.verify(root), 0)
+
+    def test_worktree_git_file_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.minimal_release(root)
+            (root / '.git').write_bytes(b'private metadata: \xff')
+            self.assertGreater(release.verify(root), 0)
+
+    def test_dirty_source_requires_explicit_refresh_not_git_cleanliness(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.minimal_release(root)
+            (root / '.git').mkdir()
+            (root / 'README.md').write_text('reviewed edit\n', encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'manifest mismatch'):
+                release.verify(root)
+            release.refresh(root)
+            self.assertNotIn(b'\r\n', (root / release.MANIFEST).read_bytes())
+            self.assertGreater(release.verify(root), 0)
+            (root / '__pycache__').mkdir()
+            with self.assertRaisesRegex(ValueError, 'forbidden release directory'):
+                release.inventory(root)
+
+    def test_git_attributes_preserve_lf_manifest_bytes(self):
+        attrs = (ROOT / '.gitattributes').read_bytes()
+        self.assertIn(b'* text=auto eol=lf\n', attrs)
+        self.assertNotIn(b'\r\n', attrs)
+
     def test_private_and_unlisted_paths_rejected(self):
         for name in ('private-data/fixture.json', '.mcp.json', '.env', 'cookies.json', 'unexpected.txt'):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:

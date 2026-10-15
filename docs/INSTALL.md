@@ -1,10 +1,14 @@
 # 安装与验收
 
-## 核心
+## 一行安装（npm 包待发布）
+
+推荐入口及完整安全说明见 [npm/npx 安装](SETUP.md)。包名 `outfit-me-agent` 尚未核实可用性或发布；维护者发布后，在目标项目目录运行 `npx outfit-me-agent setup --agent claude --scope project`。Node >=18、Python >=3.11；主动执行 setup 会下载捆绑购物 MCP 的 Python 依赖、创建持久用户 runtime，并安全合并项目 `.mcp.json`。Chrome 扩展加载、令牌配对、宿主批准与账号授权仍需人工完成。小红书/天气仍需独立可信连接器和本机凭据，不宣称一键全部可用。`--dry-run` 无写入/子进程；`--skill-only` 不安装 MCP。
+
+## 手动核心安装
 
 Python 3.10+。先进入解压/克隆后的发行根目录，再运行 README 的测试命令。测试从自身文件位置寻找 Skill，不依赖原开发工作区。macOS/Linux 可将 `python` 替换为 `python3`。
 
-宿主安装：完整复制 `skills/outfit-me/`，保持 references/scripts/schemas/evals 的相对布局。例如使用支持项目 Skills 的 Claude Code 时，目标为你选择项目的 `.claude/skills/outfit-me/`。复制前确认目标无同名内容；不要覆盖已有个人定制。其他宿主按其 Skills 文档配置。此项目不会自动改宿主配置，也没有模型 API 依赖。
+宿主安装：完整复制 `skills/outfit-me/`，保持 references/scripts/schemas/evals 的相对布局。例如使用支持项目 Skills 的 Claude Code 时，目标为你选择项目的 `.claude/skills/outfit-me/`。复制前确认目标无同名内容；不要覆盖已有个人定制。其他宿主按其 Skills 文档配置。手动复制本身不会改宿主配置，也没有模型 API 依赖；只有主动运行 setup 的完整 Claude 项目模式才会合并 MCP 配置。
 
 数据库选目标项目的 `private-data/outfit-me.sqlite3`，实际调用显式传入绝对路径；别把个人数据放进安装的 Skill 目录。持久化必须获得用户同意。可先只运行测试和 `--help`，不创建真实档案。
 

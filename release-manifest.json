@@ -1,14 +1,17 @@
 {
   "schema_version": 1,
   "files": {
-    ".gitignore": "d4235499b112915aeea424976efe5f53bcbb3302591c91ba963fd30c4cfc8d30",
+    ".gitattributes": "fd815d2c9d5264063b0244d17691dfd31fffa019c363e319d55c5debf664f8c7",
+    ".gitignore": "cd1b7089744da5ee0c1623acf6e9b3e041e7abbae0b6499cf67207ff49569827",
     "LICENSE": "2f5e1593c9af9c818623f4c8a6ba76b1929af1c7f71096faf5473bc8c4196f8a",
-    "README.md": "eb60e85599010d66518184fb230711a4718d328fe6e4ce2729f6bb6cc759a96e",
+    "README.md": "e941b0ddb388171c28610da7e0c61d04f77ced821b6925933294b21a74eb9ebc",
     "THIRD_PARTY_NOTICES.md": "c8c32aafae11cd05302b233f7ac623fb8f909a6e3f665454799a0e1d0315758e",
+    "bin/setup.cjs": "256cb9d811a4464a1b564776b9c290977e49b8ec64da2228639c799d1b22c76f",
     "config_examples/mcp-client.json": "d8e397af03b5b032f21d0aa967086f0c78b33c87b76f2e9898ae0a144df7de02",
     "docs/DESIGN.md": "011167b77170c2f5bd93e9bf9da3b02812f1699e65283f52991eb7339334529e",
-    "docs/INSTALL.md": "ba873a863eb4ae9308c53250df89ed553670a8aa102b5bcc4700137dde5eaa71",
+    "docs/INSTALL.md": "c6b92b36cc0892c1fca8460753fd12a4c98de81e507e2f3ce70a04c8b4832594",
     "docs/PRODUCT.md": "cf9c2fcaffead1e53924110a9eebd4e45a819828d93289129070ea295e4b835e",
+    "docs/SETUP.md": "234a34bdc69e4f2a5cb812908f303a6523a9c546432820de179e06c7e554898b",
     "integrations/commerce-browser-mcp/.env.example": "da580264f5510ad3f314efc82a3ecfba3eaf8542a0506dda99f6ca8d0f6595de",
     "integrations/commerce-browser-mcp/.gitignore": "7220c8ff336ae0aec54c0f9dacda9d1ddc444a287fc7405ecaccd59529c0764f",
     "integrations/commerce-browser-mcp/LICENSE": "5ca2920d4f56954100c8f365461aba7b6c6154da49734f7b2703d9275ad49d11",
@@ -39,7 +42,8 @@
     "integrations/commerce-browser-mcp/tests/test_bridge_lifecycle.py": "b87b052fbb24cc555fbdfa1bc8ef04a6d6fafa4595e0f2d2ea407a48542e41e2",
     "integrations/commerce-browser-mcp/tests/test_extension_mode.py": "9cc928f239b1d8fa3a7529ecab076e01ca8f09c285b58de7e04ab5bdf5095198",
     "integrations/commerce-browser-mcp/tests/test_safety.py": "7c32d29bbb6a3584736324388abd79f6048b08e6dab28d3ceb6f1681b5738dba",
-    "scripts/release.py": "2db97257f5711fc68a628e7115cf60363f0604eb2ba2f22510f1d1e94e8a271c",
+    "package.json": "e73098cc105f31c7d4c15bd9270a182155e079ced9cae5516e175716ec247c8f",
+    "scripts/release.py": "7a4c043b69ecce7f3cc3a187d77427549906a6014b7c6154176c44937028c709",
     "skills/outfit-me/SKILL.md": "73a5386149f377a20aceac1ba0033059ac5b1471d5e480b6006373e685ec9c80",
     "skills/outfit-me/evals/scenarios.json": "395f9b452fcb62c4f7f02e73d477fe17fdcff804d0a5194f4f01eb8da9e15309",
     "skills/outfit-me/references/connectors.md": "3636fd699735e4bdff1de7fe792147d3b50f0c37f878fb9f5b845d65b5daca8f",
@@ -51,8 +55,9 @@
     "skills/outfit-me/schemas/records.schema.json": "e6e9e769d350cae9309a97e3795e24988a153df730ed304c133736e8a17f4fbc",
     "skills/outfit-me/scripts/orders.py": "9f6d1dc8962d2ba9a2021aaf1d09a72654b8f031751aa68b2f3648b37fd10625",
     "skills/outfit-me/scripts/store.py": "b6804f22fd60742663a9d05bdcce93afe31a7036fd3ec08664796b87af3616c6",
+    "tests/setup.test.cjs": "e444b5266afca6311f81291e8181d4b694ee0a3affe2e54dfb933d1da90d9832",
     "tests/test_orders.py": "6c216b103d4ce8120800f3ce0cf2152498fc7814e930cd0998b0156b6ce68d8e",
-    "tests/test_release.py": "c328331a469898bec44c72acb1a27e7b22fc2fba16d5faac82d136be35e2375d",
+    "tests/test_release.py": "f119030ee4099b39a4791da2b4ea0af10dc657df279e1326c497baf18f20cf7c",
     "tests/test_store.py": "adc3e056a6787dfdba902afa13a4e2e970763af524f23fd29de87496550ec2ad"
   }
 }

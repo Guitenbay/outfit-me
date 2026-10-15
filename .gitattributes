@@ -1,0 +1,2 @@
+# Keep release-manifest byte hashes stable across Git checkout platforms.
+* text=auto eol=lf

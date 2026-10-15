@@ -45,7 +45,15 @@ python3 skills/outfit-me/scripts/store.py --db "$db" list wardrobe
 
 ## 安装与可选连接器
 
-将整个 `skills/outfit-me/` 交给支持 Skills 的宿主，不要只复制入口。通用步骤及可选 MCP 配置见 [安装说明](docs/INSTALL.md)。不会自动修改宿主配置、启动浏览器或安装第三方服务。
+推荐使用 [npm/npx 安装说明](docs/SETUP.md)。包名暂定 `outfit-me-agent`，尚未核实可用性或发布；维护者发布后，在目标项目目录一行执行：
+
+```sh
+npx outfit-me-agent setup --agent claude --scope project
+```
+
+主动运行 setup 会安装完整 Skill、把捆绑购物 MCP 复制到持久用户目录、创建 Python 3.11+ venv 并下载其依赖、合并项目 `.mcp.json`；随后引导手动加载 Chrome 扩展和授权标签页。需要 Node >=18、Python >=3.11 和安装网络；没有 npm postinstall，不自动登录、启动浏览器或创建数据库。已有 Skill/MCP 项默认提示不覆盖，明确同意后保留备份。先用 `--dry-run` 可无写入预览，`--skill-only` 可只安装 Skill。小红书与天气仍需独立可信连接器/本机凭据，不能把安装完成称为全部服务就绪。
+
+也可手动将整个 `skills/outfit-me/` 交给支持 Skills 的宿主，不要只复制入口。手动安装与可选 MCP 配置见 [安装说明](docs/INSTALL.md)。
 
 - [产品定位、当前能力与路线图](docs/PRODUCT.md)
 - [历史设计提案](docs/DESIGN.md)
