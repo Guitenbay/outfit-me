@@ -1,6 +1,6 @@
 # JD Taobao Browser MCP
 
-Outfit Me 的可选购物页面连接器，本地派生自 https://github.com/HaonanYu123/JD-Taobao-MCP.git ，基线 `63a4e143ad54d1d7ea9d7fa85615283beaaf3f1d`。上游 MIT LICENSE 原文保留；本地扩展桥、安全边界、URL 规则及测试修改见根目录 THIRD_PARTY_NOTICES.md。本说明为发行版重写，不是上游原始 README。
+Outfit Me 的购物页面连接器（使用本组件需加载其 Chrome 扩展），本地派生自 https://github.com/HaonanYu123/JD-Taobao-MCP.git ，基线 `63a4e143ad54d1d7ea9d7fa85615283beaaf3f1d`。上游 MIT LICENSE 原文保留；本地扩展桥、安全边界、URL 规则及测试修改见根目录 THIRD_PARTY_NOTICES.md。本说明为发行版重写，不是上游原始 README。
 
 ## 安装
 

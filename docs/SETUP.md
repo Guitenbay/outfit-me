@@ -1,18 +1,40 @@
-# npm / npx 安装
+# 安装（本地运行；npm 包未发布）
 
-## 发布状态与一行命令
+## 现在如何安装
 
-包名暂定 `outfit-me-agent`，**尚未核实 npm 名称可用性，也不表示已发布**。维护者审核并发布该名称后，进入要安装的项目目录运行：
+**npm 包 `outfit-me-agent` 不存在。** 在 npm 注册表查询返回 404，`npx outfit-me-agent` 会直接失败。请使用本地克隆：
 
 ```sh
+git clone https://github.com/Guitenbay/outfit-me.git ~/outfit-me
+cd <你的目标项目目录>
+node ~/outfit-me/bin/setup.cjs setup --agent claude --scope project
+```
+
+在 Windows PowerShell 中：
+
+```powershell
+git clone https://github.com/Guitenbay/outfit-me.git $env:USERPROFILE\outfit-me
+Set-Location <你的目标项目目录>
+node $env:USERPROFILE\outfit-me\bin\setup.cjs setup --agent claude --scope project
+```
+
+必须先进入目标项目目录再运行，否则会安装到当前目录。可先加 `--dry-run` 预览：它不写文件、不生成令牌、不执行 Python/安装子进程，也不会验证实际 Python/网络可用性。
+
+需要 Node.js >=18；购物 MCP 安装另需 Python >=3.11（含 venv/pip）、网络/PyPI 和 Chrome。CLI 自身没有 npm 依赖、没有 postinstall；主动执行 setup 即授权下载 Python 依赖、创建本地环境并修改项目 MCP 配置。Python 依赖只有版本范围，尚未锁定，不保证可重复解析。
+
+## 计划中的发布形态（尚不可用）
+
+若维护者以后真的发布该名称，命令才会是下面这样。以下仅为计划，**现在执行会 404**：
+
+```sh
+# 仅发布后可用，现在执行会 404：
 npx outfit-me-agent setup --agent claude --scope project
 ```
 
-默认命令也可省略 `setup` 和两个默认选项。Node.js >=18；自动购物 MCP 安装需要 Python >=3.11（含 venv/pip）、网络/PyPI 和 Chrome。CLI 本身没有 npm 依赖，没有 postinstall；npx 会下载此包，主动执行 setup 则授权下载 Python 依赖、创建本地环境和修改项目 MCP 配置。Python 依赖只有版本范围，尚未锁定，不保证可重复解析。
-
-未发布时，在本源码目录用 `node bin/setup.cjs --help` 查看帮助。实际安装请在目标项目目录用 `node <SOURCE_DIR>/bin/setup.cjs setup`，否则会安装到当前源码项目。可先用 `--dry-run`，它不写文件、不生成令牌、不执行 Python/安装子进程，也不会验证实际 Python/网络可用性。
+默认命令也可省略 `setup` 和两个默认选项；`package.json` 里的 `bin` 已按此形态配置。发布前请重新核实名称可用性与发布状态。
 
 ## 实际安装范围
+
 
 | 内容 | 默认 Claude 项目安装 | 仍需用户完成 |
 | --- | --- | --- |
@@ -34,7 +56,9 @@ CLI 探测 Python 版本，可用 `--python <EXECUTABLE>` 指定；然后创建 
 
 令牌只存在本机 `.mcp.json` 和 runtime 的 `connection.json`，不输出到终端。POSIX 文件权限为 0600、runtime 0700；Windows 使用当前用户目录继承的 ACL，未宣称自动设置专属 ACL，用户应核实目录权限。**不要提交 `.mcp.json`、其备份、connection.json 或 runtime；不要将令牌发到聊天。** 如果项目尚未忽略这些实际配置，请自行设置版本控制排除。安装器不扫描或公开用户配置。
 
-## Chrome 扩展手动引导
+## Chrome 扩展手动引导（购物功能的前提）
+
+安装器默认 `BROWSER_MODE=extension`，**不加载扩展就无法搜索商品、读取详情或加购**；只有 Skill 的衣橱与搭配不需要扩展。
 
 1. 完成安装后按终端输出找到持久的 `component/chrome-extension/`。
 2. Chrome 打开 `chrome://extensions`，启用开发者模式，选择“加载已解压的扩展程序”，选择上述目录。
@@ -55,11 +79,13 @@ CLI 探测 Python 版本，可用 `--python <EXECUTABLE>` 指定；然后创建 
 
 ## 其他宿主与范围
 
+（以下命令在 npm 发布前不可用；现在请把 `npx outfit-me-agent` 换成 `node <仓库路径>/bin/setup.cjs`。）
+
 ```sh
-npx outfit-me-agent setup --agent claude --scope user --skill-only
-npx outfit-me-agent setup --agent codex --scope project --skill-only
-npx outfit-me-agent setup --agent codex --scope user --skill-only
-npx outfit-me-agent setup --target ./custom-skills
+node ~/outfit-me/bin/setup.cjs setup --agent claude --scope user --skill-only
+node ~/outfit-me/bin/setup.cjs setup --agent codex --scope project --skill-only
+node ~/outfit-me/bin/setup.cjs setup --agent codex --scope user --skill-only
+node ~/outfit-me/bin/setup.cjs setup --target ./custom-skills
 ```
 
 `--target` 是 Skill 的**父目录**，最终追加 `outfit-me`；自动成为 skill-only，不能与 `--agent`/`--scope` 组合，不接受 `..` 路径穿越。支持绝对路径、当前目录相对路径及 `~/`。
@@ -72,7 +98,7 @@ npx outfit-me-agent setup --target ./custom-skills
 
 ```sh
 node --test tests/setup.test.cjs
-npm pack --dry-run --json --ignore-scripts
+npm pack --dry-run --json --ignore-scripts   # 仅维护者检查打包内容，不需要发布
 python -B -m unittest discover -s tests -v
 ```
 

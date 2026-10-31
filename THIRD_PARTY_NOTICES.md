@@ -4,9 +4,9 @@
 
 `skills/outfit-me/` 与核心测试来自本地 Outfit Me 工作区的精确允许文件清单。设计文档称其参考 wardrobe、fashion-skill 的流程思想而未复制这些项目的代码/提示词；发行审阅没有独立证明全部内容的原创性。参考源码及本地研究页面没有分发；无法从当前允许文件确认这些项目的精确版本或完整来源，故不虚构仓库归属。根项目采用 MIT 许可证，见根目录 LICENSE；第三方原始署名与许可仍须保留。
 
-## 可选 commerce 组件
+## 购物 commerce 组件
 
-如发行清单包含 `integrations/commerce-browser-mcp/`，该目录为独立上游派生组件，而非核心原创代码。
+发行清单包含 `integrations/commerce-browser-mcp/`，该目录为独立上游派生组件，而非核心原创代码；使用购物功能需加载其 Chrome 扩展。
 
 - 上游：https://github.com/HaonanYu123/JD-Taobao-MCP.git
 - 已识别上游基线：`63a4e143ad54d1d7ea9d7fa85615283beaaf3f1d`
