@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: Core tests and release verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests (stdlib only)
+        run: python -B -m unittest discover -s tests -v
+      - name: Release manifest and payload policy
+        run: python -B scripts/release.py verify
+      - name: Skill CLI smoke
+        run: |
+          python -B skills/outfit-me/scripts/store.py --help
+          python -B skills/outfit-me/scripts/orders.py --help
+
+  installer:
+    name: Installer and extension tests (Node)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Installer tests
+        run: node --test tests/setup.test.cjs
+      - name: Extension tests
+        run: |
+          node --test integrations/commerce-browser-mcp/tests/extension-worker.test.cjs \
+                      integrations/commerce-browser-mcp/tests/extension-popup.test.cjs
+
+  commerce:
+    name: Commerce MCP tests and cart DOM fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install component and test dependencies
+        run: python -m pip install --upgrade pip && python -m pip install "./integrations/commerce-browser-mcp[test]"
+      - name: Install isolated Chromium for DOM fixtures
+        run: python -m playwright install --with-deps chromium
+      - name: Safety, bridge and extension-mode tests
+        working-directory: integrations/commerce-browser-mcp
+        run: python -B -m pytest -p no:cacheprovider tests/test_safety.py tests/test_bridge_lifecycle.py tests/test_extension_mode.py
+      - name: Cart DOM fixtures (real selectors, one click, no network)
+        working-directory: integrations/commerce-browser-mcp
+        run: python -B -m unittest tests/test_cart_dom.py -v
+      - name: Agent confirmation contract
+        working-directory: integrations/commerce-browser-mcp
+        env:
+          PYTHON_DOTENV_DISABLED: "1"
+        run: python -B -m unittest tests/test_cart_approval.py -v

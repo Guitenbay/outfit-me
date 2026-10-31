@@ -16,7 +16,7 @@ CORE = (
 PUBLIC = ('README.md', '.gitignore', 'THIRD_PARTY_NOTICES.md', 'docs/PRODUCT.md',
           'docs/INSTALL.md', 'config_examples/mcp-client.json', 'scripts/release.py', 'tests/test_release.py',
           'LICENSE', '.gitattributes', 'package.json', 'bin/setup.cjs', 'tests/setup.test.cjs', 'docs/SETUP.md',
-          'logo.svg')
+          'logo.svg', '.github/workflows/ci.yml')
 COMMERCE = (
     'LICENSE', 'pyproject.toml', 'README.md', 'SECURITY.md', '.env.example', '.gitignore', 'server.py',
     *('jd_taobao_mcp/' + n + '.py' for n in ('__init__', 'browser', 'config', 'extension_bridge', 'safety', 'service')),

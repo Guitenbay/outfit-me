@@ -2,6 +2,7 @@
   "schema_version": 1,
   "files": {
     ".gitattributes": "fd815d2c9d5264063b0244d17691dfd31fffa019c363e319d55c5debf664f8c7",
+    ".github/workflows/ci.yml": "bc9280dc07e7e1e65230946170d5232c236fb6a192f2e63b37fab58cda909766",
     ".gitignore": "cd1b7089744da5ee0c1623acf6e9b3e041e7abbae0b6499cf67207ff49569827",
     "LICENSE": "2f5e1593c9af9c818623f4c8a6ba76b1929af1c7f71096faf5473bc8c4196f8a",
     "README.md": "7f5e9e6a658bf52ab8ad5b91c2f60b306a0df10d0ca05e535c113f47c57d8553",
@@ -46,7 +47,7 @@
     "integrations/commerce-browser-mcp/tests/test_safety.py": "c0f5eab12a329966528ab0dcb351a8fea7ca2585ccc8c7b62b69d58248b27c41",
     "logo.svg": "85a6ffcabe638f81f84bea1d3373ef4aad0a79bd22bd5baca344350627efa0ef",
     "package.json": "8cd7091494b46215e2d98e63553bec4477a93e7b4683bbc80ec30daccc7a2e3a",
-    "scripts/release.py": "e0feed2acbf9af6746ac18a0c3968be2cbbcc4b1247f68f2cb5ab2290b5fdea7",
+    "scripts/release.py": "f813d45075e18b8af4949a7adc6cd6df9789a2fed1f645111f44fbc61f00a3a8",
     "skills/outfit-me/SKILL.md": "6ac8be949e37975fadbc6a56a84a1cef4fe87421fc9aa78efc2e38993f88f163",
     "skills/outfit-me/evals/scenarios.json": "9da22f9ffcd9b6c71e1f7bc6f6a967f69217e7090268ac9a97dc6a6593b0f172",
     "skills/outfit-me/references/connectors.md": "13afadf179ecc8aee69f3c7927c646f92dd816890b008aecd13ec07660703f83",
