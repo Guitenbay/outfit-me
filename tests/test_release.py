@@ -52,7 +52,7 @@ class ReleaseTests(unittest.TestCase):
             root = Path(tmp)
             self.minimal_release(root)
             (root / '.git').mkdir()
-            (root / 'README.md').write_text('reviewed edit\n', encoding='utf-8')
+            (root / 'README.md').write_bytes(b'reviewed edit\n')
             with self.assertRaisesRegex(ValueError, 'manifest mismatch'):
                 release.verify(root)
             release.refresh(root)
@@ -73,7 +73,7 @@ class ReleaseTests(unittest.TestCase):
                 root = Path(tmp)
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text('{}', encoding='utf-8')
+                path.write_bytes(b'{}')
                 with self.assertRaises(ValueError):
                     release.inventory(root)
 

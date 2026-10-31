@@ -57,6 +57,10 @@ def inventory(root=ROOT):
 
     Git cleanliness is independent of payload validity: reviewed, uncommitted
     edits are accepted after explicit manifest refresh. Caches remain forbidden.
+
+    Payload bytes must already be LF. .gitattributes normalizes text to LF on
+    checkout, so a CRLF working copy would hash to a manifest that only matches
+    this machine and fails in CI on a Linux checkout.
     """
     root = Path(root)
     allowed = set(CORE + PUBLIC) | {PREFIX + p for p in COMMERCE} | {MANIFEST}
@@ -81,6 +85,8 @@ def inventory(root=ROOT):
                 continue
             payload = path.read_bytes()
             check_payload(name, payload)
+            if b'\r\n' in payload:
+                raise ValueError('CRLF line endings in release payload (must be LF): ' + name)
             found[name] = hashlib.sha256(payload).hexdigest()
     walk(root)
     missing = set(CORE + PUBLIC) - found.keys()
