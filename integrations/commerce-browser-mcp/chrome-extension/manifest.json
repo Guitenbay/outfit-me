@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "JD Taobao Authorized Tab Bridge",
   "version": "0.1.0",
-  "description": "Lets the local read-only MCP use only the shopping tab you explicitly select.",
+  "description": "Default-read-only local MCP for your selected shopping tab; optional per-SKU cart attempts require Agent-native or popup approval.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
     "http://127.0.0.1/*",

@@ -177,7 +177,7 @@ function install(plan, { io = fs, run = spawnSync, approved = false } = {}) {
       runChecked(run, vpython, ['-B', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-cache-dir', component], 'MCP dependency installation');
       runChecked(run, vpython, ['-B', '-c', 'import mcp, playwright, dotenv'], 'MCP dependency verification');
       const token = crypto.randomBytes(32).toString('hex');
-      const env = { BROWSER_MODE: 'extension', EXTENSION_BRIDGE_HOST: '127.0.0.1', EXTENSION_BRIDGE_PORT: '8765', EXTENSION_BRIDGE_TOKEN: token, PYTHON_DOTENV_DISABLED: '1', ALLOW_STATE_CHANGING_ACTIONS: 'false', BROWSER_PROFILE_DIR: path.join(runtime, 'profile'), ARTIFACTS_DIR: path.join(runtime, 'artifacts') };
+      const env = { BROWSER_MODE: 'extension', EXTENSION_BRIDGE_HOST: '127.0.0.1', EXTENSION_BRIDGE_PORT: '8765', EXTENSION_BRIDGE_TOKEN: token, PYTHON_DOTENV_DISABLED: '1', ALLOW_STATE_CHANGING_ACTIONS: 'false', ALLOW_ADD_TO_CART: 'false', BROWSER_PROFILE_DIR: path.join(runtime, 'profile'), ARTIFACTS_DIR: path.join(runtime, 'artifacts') };
       entry = { type: 'stdio', command: vpython, args: ['-B', path.join(component, 'server.py')], env };
       // Token remains only in private local configuration, never printed.
       io.writeFileSync(path.join(runtime, 'connection.json'), JSON.stringify({ port: 8765, token }, null, 2) + '\n', { flag: 'wx', mode: 0o600 });

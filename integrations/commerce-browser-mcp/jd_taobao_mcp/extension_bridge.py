@@ -60,7 +60,7 @@ class ExtensionBridge:
                 self.revoke(platform, 'grant_replaced')
                 self.last_revoke_reason.pop(platform, None)
                 self.grants[platform] = dict(client_id=body['client_id'], url=url, title=str(body.get('title', ''))[:500], seen=now)
-                return {'success': True}
+                return {'success': True, 'allow_add_to_cart': self.settings.allow_add_to_cart and platform == 'taobao'}
             platform = next((p for p in list(self.grants) if (g := self.live(p)) and hmac.compare_digest(g['client_id'], client)), None)
             if platform is None:
                 raise ValueError('tab_not_authorized')
@@ -198,6 +198,12 @@ class ExtensionBridge:
                 self.pending.pop(request_id, None)
 
 
+def _validate_cart_request_id(request_id):
+    if (not isinstance(request_id, str) or not 16 <= len(request_id) <= 64
+            or not request_id.isascii() or not all(c.isalnum() or c in '-_' for c in request_id)):
+        raise ValueError('request_id_must_be_16_to_64_ASCII_identifier_characters')
+
+
 class ExtensionBridgeController:
     def __init__(self, settings: Settings, platform='taobao', bridge=None):
         if settings.allow_state_changing_actions:
@@ -228,6 +234,68 @@ class ExtensionBridgeController:
     async def _request(self, operation, payload, timeout=None):
         async with self.lock:
             return await self.bridge.request(self.platform, operation, payload, timeout or self.settings.action_timeout_ms / 1000)
+
+    def _cart_enabled(self):
+        if not self.settings.allow_add_to_cart:
+            raise SafetyError('ALLOW_ADD_TO_CART_disabled')
+        if self.platform != 'taobao':
+            raise SafetyError('JD_remains_read_only')
+
+    async def prepare_add_to_cart(self, request_id, expected_product_url, expected_item_id, color, size, quantity):
+        self._cart_enabled()
+        _validate_cart_request_id(request_id)
+        if extension_platform(expected_product_url) != 'taobao':
+            raise SafetyError('Taobao_Tmall_product_required')
+        url = urlparse(expected_product_url)
+        from urllib.parse import parse_qs
+        ids = parse_qs(url.query, keep_blank_values=True).get('id', [])
+        if (url.hostname not in {'item.taobao.com', 'detail.tmall.com'} or url.path != '/item.htm'
+                or len(ids) != 1 or not ids[0].isascii() or not ids[0].isdigit()
+                or not isinstance(expected_item_id, str) or ids[0] != expected_item_id):
+            raise ValueError('single_matching_numeric_item_id_required')
+        if type(quantity) is not int or not 1 <= quantity <= 10:
+            raise ValueError('quantity_must_be_integer_1_to_10')
+        for label in (color, size):
+            if not isinstance(label, str) or not label.strip() or len(label) > 100:
+                raise ValueError('exact_nonempty_color_and_size_required')
+        return await self._request('prepare_add_to_cart', {
+            'request_id': request_id, 'expected_product_url': expected_product_url,
+            'expected_item_id': expected_item_id, 'color': ' '.join(color.split()),
+            'size': ' '.join(size.split()), 'quantity': quantity,
+        })
+
+    async def get_add_to_cart_status(self, request_id):
+        self._cart_enabled()
+        _validate_cart_request_id(request_id)
+        return await self._request('get_add_to_cart_status', {'request_id': request_id})
+
+    async def get_add_to_cart_review(self, request_id):
+        """Internal snapshot review for native Agent elicitation, not an MCP tool."""
+        self._cart_enabled()
+        _validate_cart_request_id(request_id)
+        return await self._request('review_add_to_cart', {'request_id': request_id})
+
+    async def confirm_add_to_cart(self, request_id, review_hash):
+        """Internal execution; caller must first obtain native user approval."""
+        self._cart_enabled()
+        _validate_cart_request_id(request_id)
+        if (not isinstance(review_hash, str) or len(review_hash) != 64
+                or any(c not in '0123456789abcdef' for c in review_hash)):
+            raise ValueError('review_hash_must_be_64_lowercase_hex_characters')
+        return await self._request('confirm_add_to_cart', {
+            'request_id': request_id, 'review_hash': review_hash,
+        })
+
+    async def select_variant(self, dimension, label):
+        """Bounded variant switch inside the recognized SKU panel; one chip click."""
+        self._cart_enabled()
+        if dimension not in ('color', 'size'):
+            raise ValueError('dimension_must_be_color_or_size')
+        if not isinstance(label, str) or not label.strip() or len(label) > 100:
+            raise ValueError('exact_variant_label_required')
+        return await self._request('select_variant', {
+            'dimension': dimension, 'label': ' '.join(label.split()),
+        })
 
     async def navigate(self, url):
         if extension_platform(url) != self.platform:

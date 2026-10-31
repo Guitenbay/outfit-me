@@ -50,6 +50,7 @@ class Settings:
     max_search_results: int
     allow_state_changing_actions: bool
     proxy: str | None
+    allow_add_to_cart: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -117,4 +118,5 @@ class Settings:
                 "ALLOW_STATE_CHANGING_ACTIONS", False
             ),
             proxy=proxy,
+            allow_add_to_cart=_env_bool("ALLOW_ADD_TO_CART", False),
         )

@@ -17,6 +17,7 @@ if playwright_browsers_path:
         os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(PROJECT_ROOT / browsers_path)
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import StrictInt, StrictStr
 
 from jd_taobao_mcp.config import Settings
 from jd_taobao_mcp.service import ShoppingBrowserService
@@ -29,7 +30,11 @@ mcp = FastMCP(
     instructions=(
         "用于在用户本机可见浏览器中浏览京东、淘宝和天猫，并提取页面与商品数据。"
         "必须让用户自己完成扫码、密码、验证码和安全验证。"
-        "默认只读：不得购买、加入购物车、结算、支付、关注、收藏、删除或修改账户信息。"
+        "默认只读：不得购买、结算、支付、关注、收藏、删除或修改账户信息。"
+        "仅 ALLOW_ADD_TO_CART 开启时可 prepare_add_to_cart；用户须手选精确颜色尺码数量，"
+        "prepare 只准备，confirm_add_to_cart 在 Agent 内通过宿主原生确认后直接操作网页，"
+        "无需再次打开扩展确认；也可选用扩展弹窗确认。同一请求最多尝试一次，"
+        "工具调用许可不是具体商品确认，不重试未知结果。"
         "优先使用 search_products 和 get_product_detail；只有页面结构变化时才使用通用点击工具。"
         "商品详情输出有硬约束：必须包含 product_url、product_parameters、good_reviews、bad_reviews "
         "及对应 status 字段；good_reviews 目标最多 5 条，bad_reviews 目标最多 2 条；"
@@ -124,6 +129,61 @@ async def get_product_detail(url: str) -> dict[str, Any]:
     return await service.get_product_detail(url)
 
 
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True, "idempotentHint": True, "openWorldHint": True})
+async def prepare_add_to_cart(
+    request_id: StrictStr, expected_product_url: StrictStr, expected_item_id: StrictStr,
+    color: StrictStr, size: StrictStr, quantity: StrictInt,
+) -> dict[str, Any]:
+    """准备淘宝/天猫单次加购，立即返回待人工确认；不会自动选择 SKU 或点击。
+
+    默认关闭，仅 extension 模式。request_id 为 16–64 位 ASCII 唯一标识，重试必须复用；
+    URL 必须为单个数字 id 的商品页且与 expected_item_id 相同。颜色、尺码和 1–10 整数数量
+    必须与用户手动选择的 DOM 证据完全一致。不支持的页面 fail closed。
+    准备后调用 confirm_add_to_cart 在 Agent 内原生确认，或使用 Chrome 扩展弹窗确认，
+    才尝试一次；两种确认方式二选一，不要求重复点击。未核验结果不得重试。
+    """
+    return await service.prepare_add_to_cart(
+        request_id, expected_product_url, expected_item_id, color, size, quantity
+    )
+
+
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True, "idempotentHint": True, "openWorldHint": True})
+async def confirm_add_to_cart(request_id: StrictStr) -> dict[str, Any]:
+    """在 Agent 内获得用户确认后，直接单次操作网页加入购物车。
+
+    必须先 prepare_add_to_cart。无须 Chrome 扩展弹窗二次确认。
+    根据准备阶段锁定的不可伪造 review_hash 在已授权网页上执行单次点击加购。
+    返回 attempted_unverified 仍不代表平台确认成功。
+    """
+    review = await service.get_add_to_cart_review(request_id)
+    if review.get("status") != "pending_confirmation":
+        return review
+    try:
+        return await service.confirm_add_to_cart(request_id, review["review_hash"])
+    except Exception as exc:
+        return {
+            "request_id": request_id,
+            "status": "unknown",
+            "reason": f"confirmation_execution_result_unknown_do_not_retry: {exc}"
+        }
+
+
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
+async def select_product_variant(dimension: StrictStr, label: StrictStr) -> dict[str, Any]:
+    """在当前已授权淘宝/天猫商品页切换颜色或尺码，只点击名称完全匹配的唯一选项。
+
+    仅作用于已识别的商品规格面板；不选择数量、不加入购物车、不购买。
+    dimension 为 color 或 size。文本必须与页面选项完全一致（已识别的加购热度、
+    尺码建议后缀会被忽略）。缺失、多个匹配或禁用选项时停止，不做模糊匹配。
+    """
+    return await service.select_variant(dimension.strip(), label)
+
+@mcp.tool(annotations={"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
+async def get_add_to_cart_status(request_id: str) -> dict[str, Any]:
+    """只读查询单次加购意图；attempted_unverified/unknown 均不代表服务器加购成功，不自动重试。"""
+    return await service.get_add_to_cart_status(request_id)
+
+
 @mcp.tool()
 async def page_snapshot(max_chars: int | None = None, platform: str | None = None) -> dict[str, Any]:
     """获取指定平台快照；省略 platform 使用最近选择的平台（默认淘宝）。"""
@@ -199,6 +259,15 @@ async def browser_close(platform: str | None = None) -> dict[str, Any]:
 
 
 def main() -> None:
+    # Start the loopback bridge with the server so a fresh host reconnect is
+    # immediately usable; previous sessions' listeners die with their process.
+    if settings.browser_mode == "extension":
+        try:
+            service.taobao_browser.bridge.start()
+        except OSError as exc:
+            # Port already held (often an orphaned older session): keep serving and
+            # let browser_start()/browser_status() surface the conflict honestly.
+            print(f"extension bridge not started on port {settings.extension_bridge_port}: {exc}", file=sys.stderr)
     if "--http" in sys.argv:
         mcp.run(transport="streamable-http")
     else:

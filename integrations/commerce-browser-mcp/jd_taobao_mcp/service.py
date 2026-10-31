@@ -23,6 +23,51 @@ class ShoppingBrowserService:
             self.taobao_browser = BrowserController(self._settings_for_platform("taobao"))
         self.browser = self.taobao_browser
 
+    async def prepare_add_to_cart(
+        self, request_id: str, expected_product_url: str, expected_item_id: str,
+        color: str, size: str, quantity: int,
+    ) -> dict[str, Any]:
+        if not self.settings.allow_add_to_cart:
+            raise ValueError("ALLOW_ADD_TO_CART_disabled")
+        if self.settings.browser_mode != "extension":
+            raise ValueError("add_to_cart_requires_extension_mode")
+        if platform_from_url(expected_product_url) != "taobao":
+            raise ValueError("JD_remains_read_only")
+        return await self.taobao_browser.prepare_add_to_cart(
+            request_id, expected_product_url, expected_item_id, color, size, quantity
+        )
+
+    async def get_add_to_cart_status(self, request_id: str) -> dict[str, Any]:
+        if not self.settings.allow_add_to_cart:
+            raise ValueError("ALLOW_ADD_TO_CART_disabled")
+        if self.settings.browser_mode != "extension":
+            raise ValueError("add_to_cart_requires_extension_mode")
+        return await self.taobao_browser.get_add_to_cart_status(request_id)
+
+    async def get_add_to_cart_review(self, request_id: str) -> dict[str, Any]:
+        """Internal review used by the server's native Agent approval form."""
+        if not self.settings.allow_add_to_cart:
+            raise ValueError("ALLOW_ADD_TO_CART_disabled")
+        if self.settings.browser_mode != "extension":
+            raise ValueError("add_to_cart_requires_extension_mode")
+        return await self.taobao_browser.get_add_to_cart_review(request_id)
+
+    async def confirm_add_to_cart(self, request_id: str, review_hash: str) -> dict[str, Any]:
+        """Internal execution after the server verifies native user approval."""
+        if not self.settings.allow_add_to_cart:
+            raise ValueError("ALLOW_ADD_TO_CART_disabled")
+        if self.settings.browser_mode != "extension":
+            raise ValueError("add_to_cart_requires_extension_mode")
+        return await self.taobao_browser.confirm_add_to_cart(request_id, review_hash)
+
+    async def select_variant(self, dimension: str, label: str) -> dict[str, Any]:
+        """Bounded SKU switch: clicks only the exact matching color/size chip."""
+        if not self.settings.allow_add_to_cart:
+            raise ValueError("ALLOW_ADD_TO_CART_disabled")
+        if self.settings.browser_mode != "extension":
+            raise ValueError("add_to_cart_requires_extension_mode")
+        return await self.taobao_browser.select_variant(dimension, label)
+
     async def search_products(
         self,
         platform: str,

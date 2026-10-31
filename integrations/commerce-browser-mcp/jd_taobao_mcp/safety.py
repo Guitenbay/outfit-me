@@ -135,13 +135,15 @@ _EXTENSION_BLOCKED_PATH_RE = re.compile(
 
 
 def ensure_extension_allowed_url(url: str, *, _routing_depth: int = 0) -> str:
-    from urllib.parse import parse_qsl, urljoin
+    from urllib.parse import parse_qsl, urljoin, urlsplit
     try:
-        parsed = urlparse(url)
+        # Keep semicolon suffixes in the path, as the extension's URL parser does.
+        parsed = urlsplit(url)
         routes = {
             'www.jd.com': {'/', '/index.html'}, 'search.jd.com': {'/Search'},
             'item.jd.com': None,
-            'www.taobao.com': {'/'}, 's.taobao.com': {'/search'},
+            'www.taobao.com': {'/', '/wow/z/tbhome/pcsem/alimama'},
+            's.taobao.com': {'/search'},
             's.m.taobao.com': {'/h5'}, 'item.taobao.com': {'/item.htm'},
             'www.tmall.com': {'/'}, 'detail.tmall.com': {'/item.htm'},
         }

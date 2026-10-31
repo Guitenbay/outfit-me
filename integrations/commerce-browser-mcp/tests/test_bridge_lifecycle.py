@@ -109,6 +109,43 @@ def test_successful_navigation_result_renews_lease(monkeypatch):
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize('final_url, allowed', [
+    ('https://www.taobao.com/wow/z/tbhome/pcsem/alimama?keyword=shirt', True),
+    ('https://item.taobao.com/item.htm?id=1', True),
+    ('https://www.taobao.com/wow/z/tbhome/pcsem/unknown', False),
+    ('https://cart.taobao.com/cart.htm', False),
+    ('https://www.taobao.com/wow/z/tbhome/pcsem/alimama?action=buy', False),
+    ('https://www.taobao.com/wow/z/tbhome/pcsem/alimama?next=https%3A%2F%2Fevil.test%2F', False),
+])
+def test_landing_attach_and_navigation_results_validate_actual_url(final_url, allowed):
+    async def scenario():
+        b = setup()
+        landing = 'https://www.taobao.com/wow/z/tbhome/pcsem/alimama?keyword=shirt'
+        b.dispatch('/v1/attach', '', dict(platform='taobao', client_id='landing-test-grant', url=landing))
+        task = asyncio.create_task(b.request('taobao', 'navigate', {'url': landing}, 1))
+        try:
+            await asyncio.sleep(0)
+            command = b.dispatch('/v1/commands/next', 'landing-test-grant')['command']
+            b.dispatch('/v1/claim', 'landing-test-grant', command)
+            body = dict(request_id=command['request_id'], ok=True,
+                        result={'url': final_url, 'success': True})
+            if allowed:
+                b.dispatch('/v1/results', 'landing-test-grant', body)
+                assert (await task)['url'] == final_url
+                assert b.grants['taobao']['url'] == final_url
+            else:
+                with pytest.raises(SafetyError):
+                    b.dispatch('/v1/results', 'landing-test-grant', body)
+                assert b.grants['taobao']['url'] == landing
+                assert not task.done()
+        finally:
+            if not task.done():
+                task.cancel()
+                with pytest.raises(asyncio.CancelledError):
+                    await task
+        assert not b.pending
+    asyncio.run(scenario())
+
 def test_heartbeat_expiry_and_command_timeout_are_distinct():
     async def scenario():
         b = setup()

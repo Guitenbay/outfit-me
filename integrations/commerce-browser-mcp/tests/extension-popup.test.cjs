@@ -6,11 +6,11 @@ const path=require('node:path');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function harness(options={}) {
  const nodes={},calls=[],permissions=[];
- for(const id of ['status','current','attach-reason','port','token','attach','refresh','state-jd','state-taobao','detach-jd','detach-taobao']) nodes[id]={value:'',textContent:'',disabled:false,listeners:{},addEventListener(type,fn){this.listeners[type]=fn;}};
+ for(const id of ['status','current','attach-reason','port','token','attach','refresh','state-jd','state-taobao','detach-jd','detach-taobao','cart-review','cart-confirm','cart-cancel']) nodes[id]={value:'',textContent:'',disabled:false,listeners:{},addEventListener(type,fn){this.listeners[type]=fn;}};
  nodes.port.value='8765';nodes.token.value='x'.repeat(32);
  const state={success:true,platforms:{jd:{connected:false},taobao:{connected:true}},current:{state:'ready',platform:'jd',matchesGrant:false,tabId:2}};
  const chrome={storage:{local:{get:async()=>({}),set:async()=>{}}},permissions:{request:args=>{permissions.push(args);return Promise.resolve(true);}},runtime:{sendMessage:async message=>{calls.push(message);if(options.failStatus && message.type==='popup_status') throw Error('offline');if(options.failAction && message.type!=='popup_status') throw Error('offline');return message.type==='popup_status'?state:{success:true};}}};
- const context=vm.createContext({document:{getElementById:id=>nodes[id]},chrome,Number,Error});
+ const context=vm.createContext({document:{getElementById:id=>nodes[id]},chrome,Number,Error,Date,setInterval:()=>0});
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../chrome-extension/popup.js'),'utf8'),context);
  return {nodes,calls,permissions,state,chrome};
 }
@@ -68,6 +68,15 @@ test('attach bridge failures are actionable and distinct from invalid pages',asy
  }
  h.chrome.runtime.sendMessage=async m=>m.type==='popup_status'?h.state:{success:false,error:'page_invalid',current:{state:'blocked',platform:'taobao',reason:{code:'restricted_query_param',parameter:'tab'}}};
  await h.nodes.attach.listeners.click();assert.match(h.nodes.status.textContent,/淘宝\/天猫.*查询参数「tab」/);assert(!h.nodes.status.textContent.includes('桥接服务不可用'));
+});
+test('cart renders observed selection as text, requires trusted explicit review-bound gesture',async()=>{
+ const h=harness();await tick();h.state.current={state:'ready',platform:'taobao',matchesGrant:true,tabId:1};
+ h.state.cart={request_id:'synthetic_request_0001',review_hash:'reviewed-hash',status:'pending_confirmation',expires_at:Date.now()+60000,selection:{title:'<img src=x>',item_id:'123',url:'https://item.taobao.com/item.htm?id=123',color:'白色',size:'M',quantity:1,price:null,options:[]}};
+ await h.nodes.refresh.listeners.click();assert.equal(h.nodes['cart-confirm'].disabled,false);assert.match(h.nodes['cart-review'].textContent,/<img src=x>/);assert.match(h.nodes['cart-review'].textContent,/未知/);
+ await h.nodes['cart-confirm'].listeners.click({isTrusted:false});assert(!h.calls.some(m=>m.type==='confirm_add_to_cart'));
+ await h.nodes['cart-confirm'].listeners.click({isTrusted:true});
+ const request=h.calls.find(m=>m.type==='confirm_add_to_cart');assert.equal(request.review_hash,'reviewed-hash');assert.equal(request.request_id,'synthetic_request_0001');
+ h.state.cart.expires_at=0;await h.nodes.refresh.listeners.click();assert.equal(h.nodes['cart-confirm'].disabled,true);
 });
 test('storage failure is visible but status is still read',async()=>{
  const h=harness();h.chrome.storage.local.set=async()=>{throw Error('storage unavailable');};await tick();

@@ -23,7 +23,7 @@ COMMERCE = (
     *('chrome-extension/' + n for n in ('manifest.json', 'popup.html', 'popup.js', 'service-worker.js')),
     'config_examples/mcp-client.json', 'config_examples/codex-config.toml',
     'scripts/install_windows.ps1', 'scripts/start_windows.bat',
-    *('tests/' + n for n in ('test_bridge_lifecycle.py', 'test_extension_mode.py', 'test_safety.py', 'extension-popup.test.cjs', 'extension-worker.test.cjs')),
+    *('tests/' + n for n in ('test_bridge_lifecycle.py', 'test_extension_mode.py', 'test_safety.py', 'test_cart_dom.py', 'test_cart_approval.py', 'extension-popup.test.cjs', 'extension-worker.test.cjs')),
 )
 PREFIX = 'integrations/commerce-browser-mcp/'
 MANIFEST = 'release-manifest.json'

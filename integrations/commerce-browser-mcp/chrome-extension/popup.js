@@ -5,6 +5,9 @@ const portNode = document.getElementById('port');
 const tokenNode = document.getElementById('token');
 const attachButton = document.getElementById('attach');
 const refreshButton = document.getElementById('refresh');
+const cartReview = document.getElementById('cart-review');
+const cartConfirm = document.getElementById('cart-confirm');
+const cartCancel = document.getElementById('cart-cancel');
 const names = {jd:'京东', taobao:'淘宝/天猫'};
 const origins = {
   jd:['https://www.jd.com/*','https://search.jd.com/*','https://item.jd.com/*'],
@@ -55,6 +58,18 @@ function render() {
   attachButton.disabled = busy || !ready || current.matchesGrant || !validConfig();
   reasonNode.textContent = reason;
   refreshButton.disabled = busy;
+  const cart=snapshot?.cart, selection=cart?.selection;
+  const remaining=cart ? Math.max(0, Math.ceil((cart.expires_at-Date.now())/1000)) : 0;
+  cartReview.textContent = selection ? [
+    `状态：${cart.status}；剩余确认时间：${remaining} 秒`,
+    `商品：${selection.title}`, `商品 ID：${selection.item_id}`, `链接：${selection.url}`,
+    `颜色：${selection.color}`, `尺码：${selection.size}`, `数量：${selection.quantity}`,
+    `价格：${selection.price === null ? '未知（未可靠读取所选 SKU 价格）' : selection.price}`,
+    ...(selection.options || []).map(o=>`${o.group}：${o.label}${o.id ? `（${o.id}）` : '（按实际选中节点核对）'}`),
+    cart.reason || ''
+  ].join('\n') : '没有待确认请求。';
+  cartConfirm.disabled = busy || cart?.status !== 'pending_confirmation' || !cart.review_hash || !remaining || current?.platform !== 'taobao' || !current.matchesGrant || !ready;
+  cartCancel.disabled = busy || cart?.status !== 'pending_confirmation';
 }
 async function refresh() {
   snapshot = undefined;
@@ -96,6 +111,19 @@ for (const platform of ['jd','taobao']) document.getElementById(`detach-${platfo
   } catch (_) { statusNode.textContent = '断开请求失败，请刷新状态后重试。'; }
   finally { busy = false; await refresh(); }
 });
+for (const [button, type] of [[cartConfirm,'confirm_add_to_cart'],[cartCancel,'cancel_add_to_cart']]) button.addEventListener('click', async event => {
+  if (!event?.isTrusted || button.disabled || busy) return;
+  const reviewed = snapshot.cart;
+  busy=true; render();
+  try {
+    const response=await chrome.runtime.sendMessage({type, request_id:reviewed.request_id, review_hash:reviewed.review_hash});
+    if (!response?.success) throw new Error(response?.error || 'confirmation_failed');
+    statusNode.textContent = type === 'confirm_add_to_cart' ? `加购状态：${response.cart?.status || 'unknown'}。这不代表服务器加购成功；不要自动重试。` : '此次请求已取消。';
+  } catch (_) { statusNode.textContent='确认结果未知，请手动检查；不要重复点击或自动重试。'; }
+  finally { busy=false; await refresh(); }
+});
+// Refresh only displayed expiry; never auto-confirm or poll commerce actions.
+setInterval(render, 1000);
 refreshButton.addEventListener('click', refresh);
 for (const input of [portNode, tokenNode]) input.addEventListener('input', render);
 render();

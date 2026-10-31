@@ -29,6 +29,15 @@
     <button id="detach-taobao">断开淘宝</button>
   </div>
   <p id="attach-reason" role="status"></p>
+  <section aria-label="单次加购确认">
+    <h2>单次加购</h2>
+    <pre id="cart-review" style="white-space:pre-wrap;overflow-wrap:anywhere">没有待确认请求。</pre>
+    <p>可在 Agent 内原生确认后直接加购，无需再点本弹窗；此处是可选替代。请核对实测规格，仅加购不结算；未知结果不要重试。</p>
+    <div class="actions">
+      <button id="cart-confirm" disabled>仅加入购物车一次</button>
+      <button id="cart-cancel" disabled>取消此次请求</button>
+    </div>
+  </section>
   <div id="status" role="status">切换标签页不会撤销授权。连接状态不是网站登录状态；扫码或安全验证仍需手动完成。</div>
   <script src="popup.js"></script>
 </body>

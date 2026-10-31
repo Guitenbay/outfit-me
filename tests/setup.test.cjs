@@ -94,6 +94,7 @@ test('full installation subprocesses mocked: private durable paths, secure token
   assert.deepEqual(entry.args, ['-B', path.join(result.runtime, 'component', 'server.py')]);
   assert.equal(entry.env.BROWSER_MODE, 'extension');
   assert.equal(entry.env.ALLOW_STATE_CHANGING_ACTIONS, 'false');
+  assert.equal(entry.env.ALLOW_ADD_TO_CART, 'false');
   assert.equal(entry.env.PYTHON_DOTENV_DISABLED, '1');
   assert.equal(entry.env.EXTENSION_BRIDGE_HOST, '127.0.0.1');
   assert.match(entry.env.EXTENSION_BRIDGE_TOKEN, /^[a-f0-9]{64}$/);

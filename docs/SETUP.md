@@ -30,7 +30,7 @@ npx outfit-me-agent setup --agent claude --scope project
 
 CLI 探测 Python 版本，可用 `--python <EXECUTABLE>` 指定；然后创建 venv，pip 安装捆绑组件及其声明的依赖，并验证三个依赖 import。extension 模式不下载 Chromium，不执行 Playwright 浏览器安装。测试不代表真实 PyPI 安装或在线购物验收。
 
-项目 `.mcp.json` 只新增/替换 `mcpServers.outfit-me-commerce`，保留其他服务器和顶层键。入口使用绝对 venv 解释器、`-B` 和绝对 `server.py`。强制设置 `BROWSER_MODE=extension`、回环地址、端口 8765、随机令牌、`PYTHON_DOTENV_DISABLED=1` 和 `ALLOW_STATE_CHANGING_ACTIONS=false`；profile/artifacts 使用 runtime 下绝对路径。
+项目 `.mcp.json` 只新增/替换 `mcpServers.outfit-me-commerce`，保留其他服务器和顶层键。入口使用绝对 venv 解释器、`-B` 和绝对 `server.py`。强制设置 `BROWSER_MODE=extension`、回环地址、端口 8765、随机令牌、`PYTHON_DOTENV_DISABLED=1`、`ALLOW_STATE_CHANGING_ACTIONS=false` 和 `ALLOW_ADD_TO_CART=false`；profile/artifacts 使用 runtime 下绝对路径。
 
 令牌只存在本机 `.mcp.json` 和 runtime 的 `connection.json`，不输出到终端。POSIX 文件权限为 0600、runtime 0700；Windows 使用当前用户目录继承的 ACL，未宣称自动设置专属 ACL，用户应核实目录权限。**不要提交 `.mcp.json`、其备份、connection.json 或 runtime；不要将令牌发到聊天。** 如果项目尚未忽略这些实际配置，请自行设置版本控制排除。安装器不扫描或公开用户配置。
 
@@ -43,7 +43,7 @@ CLI 探测 Python 版本，可用 `--python <EXECUTABLE>` 指定；然后创建 
 5. 本人打开公开京东与淘宝/天猫页面，从扩展分别授权当前标签页。授权不等于登录，登录/验证码与颜色尺码选择均手动完成。
 6. 扩展/worker 重载、关闭标签页、授权过期或离开公开购物范围可能撤销授权，需重新授权。遇平台风控立即停止。
 
-扩展模式只读且功能少于 persistent 模式（例如不支持结构化 search_products/截图、点击/输入）。见捆绑组件 README 与 SECURITY.md；安装器不自动放宽保护。
+扩展模式默认只读，功能少于 persistent 模式（例如不支持结构化 search_products/截图、通用点击/输入）。可选受控加购只用于淘宝／天猫：用户主动在本机将 `ALLOW_ADD_TO_CART` 设为 `true` 并重连后，独立工具才能准备请求；用户手动选择商品规格与数量后，由 `confirm_add_to_cart` 在 Agent 宿主原生表单中确认一次，再直接操作网页加购，无需插件二次确认；扩展弹窗仅作可选替代，宿主不支持原生确认时会明确停止。不得打开通用写开关，不能自动重试未知结果，不下单、不结算、不支付。目前适配旧版及已观测新版 DOM，脱敏结构经隔离浏览器测试，但线上准备／确认／服务器结果仍须分别核实，无法可靠识别的页面拒绝执行；见捆绑组件 README 与 SECURITY.md。安装器仍默认禁用加购，不把本次安装当任何具体商品的授权。
 
 ## 覆盖、备份与恢复
 
