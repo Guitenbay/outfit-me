@@ -20,11 +20,15 @@ Python 3.10+。先进入解压/克隆后的发行根目录，再运行 README �
 
 数据库选目标项目的 `private-data/outfit-me.sqlite3`，实际调用显式传入绝对路径；别把个人数据放进安装的 Skill 目录。持久化必须获得用户同意。可先只运行测试和 `--help`，不创建真实档案。
 
-## 购物连接器（需扩展）与可选外部连接器
+## 购物连接器（需扩展）与外部连接器
 
-核心不依赖任何 MCP。小红书和天气服务不捆绑；请独立核实其来源、许可证、版本、真实工具 schema、凭据处理和限额。工具连接失败不代表未配置，不能声称查询成功；接受用户文字/截图并降级即可。
+Skill 完整的体验依赖三个 MCP 服务，其中购物连接器由本仓库内置，外部天气与灵感服务需独立配置：
 
-本发行目录已包含 `integrations/commerce-browser-mcp/` 购物 MCP 源码、Chrome 扩展及其离线测试。该购物连接器默认 `BROWSER_MODE=extension`，**必须加载扩展并授权标签页才能搜索商品、读取详情或加购**；未加载扩展时购物功能不可用（衣橱与搭配不受影响），保留独立 MIT LICENSE 与来源声明。安装与双平台授权步骤见该目录 README.md 和 SECURITY.md。它不会随核心自动启动；小红书和天气连接器仍需独立安装。`scripts/release.py` 支持精确允许文件清单导入，用于后续人工审阅后的发行整理，不会复制完整工作区。
+1. **购物 MCP (`outfit-me-commerce`)**：本仓库内置于 `integrations/commerce-browser-mcp/`，默认 `BROWSER_MODE=extension`，**必须加载扩展并授权标签页才能搜索商品、读取详情或加购**；未加载扩展时购物功能不可用（衣橱与搭配不受影响）。安装与授权见其目录 README.md 与 SECURITY.md。
+2. **天气 MCP (`qweather`)**：开源项目 [overstarry/qweather-mcp](https://github.com/overstarry/qweather-mcp)，官方配置文档与 API Key 申请参见 [和风天气开发平台](https://dev.qweather.com/docs/configuration/)。
+3. **穿搭灵感 MCP (`xiaohongshu`)**：开源项目 [xpzouying/xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)。
+
+工具连接失败不代表未配置，不能声称查询成功；接受用户文字/截图并降级即可。`scripts/release.py` 支持精确允许文件清单导入，用于后续人工审阅后的发行整理，不会复制完整工作区。
 
 ## MCP 配置示例
 

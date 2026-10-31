@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 140" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient for Icon Badge -->
+    <linearGradient id="omBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+
+    <!-- Hanger Gradient -->
+    <linearGradient id="omHangerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+
+    <!-- Card Background Gradient (Seamless on GitHub light & dark) -->
+    <linearGradient id="omCardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329" />
+      <stop offset="100%" stop-color="#111c38" />
+    </linearGradient>
+  </defs>
+
+  <style>
+    .om-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-weight: 800;
+      font-size: 42px;
+      letter-spacing: -0.8px;
+    }
+    .om-sub {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-weight: 600;
+      font-size: 11.5px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .om-desc {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-weight: 400;
+      font-size: 13.5px;
+      letter-spacing: 0.2px;
+    }
+  </style>
+
+  <!-- Container Card -->
+  <rect width="540" height="140" rx="16" fill="url(#omCardBg)" />
+  <rect width="538" height="138" x="1" y="1" rx="15" fill="none" stroke="#1e293b" stroke-width="1.2" />
+
+  <!-- ICON BADGE (Left) -->
+  <g transform="translate(24, 18)">
+    <!-- Base Squircle -->
+    <rect x="0" y="0" width="104" height="104" rx="26" fill="url(#omBadgeGrad)" />
+    <!-- Subtle Inner Border -->
+    <rect x="1" y="1" width="102" height="102" rx="25" fill="none" stroke="#38bdf8" stroke-width="1.2" stroke-opacity="0.4" />
+
+    <!-- Minimalist Hanger Hook -->
+    <path d="M 52 40 C 52 28, 60 25, 60 19 C 60 14, 55 12, 51 15 C 48 17, 47 20, 47 23"
+          fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" />
+
+    <!-- Inner Layer Fold (Soft Cyan) -->
+    <path d="M 52 40 L 22 66 C 19 68, 21 72, 25 72 L 79 72 C 83 72, 85 68, 82 66 Z"
+          fill="none" stroke="#bae6fd" stroke-width="2.5" stroke-linejoin="round" opacity="0.65" />
+
+    <!-- Outer Structured Lapel / Coat Silhouette (White Fold) -->
+    <path d="M 52 40 L 20 66 L 34 91 L 52 81 L 70 91 L 84 66 Z"
+          fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Center Button / Collar Node -->
+    <circle cx="52" cy="62" r="3" fill="#38bdf8" />
+  </g>
+
+  <!-- TYPOGRAPHY (Right) -->
+  <g transform="translate(150, 36)">
+    <!-- Subtitle Category Tag -->
+    <text x="0" y="12" fill="#38bdf8" class="om-sub">Wardrobe-First Styling Agent</text>
+
+    <!-- Main Title -->
+    <text x="0" y="52" class="om-title">
+      <tspan fill="#f8fafc">Outfit</tspan>
+      <tspan fill="url(#omHangerGrad)">.me</tspan>
+    </text>
+
+    <!-- Brief Pitch -->
+    <text x="0" y="78" fill="#94a3b8" class="om-desc">
+      Local-first wardrobe management &amp; evidence-backed shopping
+    </text>
+  </g>
+</svg>

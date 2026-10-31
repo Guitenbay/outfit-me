@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.svg" alt="Outfit Me" width="540">
+</p>
+
 # Outfit Me
 
 本地优先的 Agent 个人衣橱、搭配与有据可查的整套选购助手。已有衣物优先，购物只补缺口；不是独立电商网站、通用爬虫或自动下单工具。
@@ -47,7 +51,7 @@ python3 skills/outfit-me/scripts/store.py --db "$db" list wardrobe
 
 **当前没有发布任何 npm 包**，`npx outfit-me-agent` 现在会返回 404 并失败。请使用下面的本地方式；文档中的 npx 命令仅描述发布后的计划，不代表现在可用。
 
-### 方式一：安装器（Skill + 购物 MCP，购物需再加载扩展）
+### 第一步：运行安装器（安装 Skill + 配置购物 MCP）
 
 先把本仓库克隆到本机，然后进入**要安装到的目标项目目录**执行：
 
@@ -69,17 +73,13 @@ node ~/outfit-me/bin/setup.cjs setup --agent claude --scope project
 node <本仓库路径>/bin/setup.cjs setup --dry-run
 ```
 
-`setup` 会复制完整 Skill、把捆绑的购物 MCP 复制到持久用户目录、创建 Python 3.11+ venv 并安装其依赖、合并项目 `.mcp.json`，然后打印 Chrome 扩展的加载路径。需要 Node >=18、Python >=3.11 和网络。没有 npm postinstall，不自动登录、不启动浏览器、不创建数据库。遇到同名 Skill 或 MCP 项会询问，默认不覆盖；确认后保留备份。`--skill-only` 只安装 Skill。小红书与天气不在其中，仍需独立连接器和本机凭据。
+`setup` 会复制完整 Skill、把捆绑的购物 MCP 复制到持久用户目录、创建 Python 3.11+ venv 并安装其依赖、合并项目 `.mcp.json`，然后打印 Chrome 扩展的加载路径。需要 Node >=18、Python >=3.11 和网络。没有 npm postinstall，不自动登录、不启动浏览器、不创建数据库。遇到同名 Skill 或 MCP 项会询问，默认不覆盖；确认后保留备份。小红书与天气不在其中，仍需独立连接器和本机凭据。
 
-### 方式二：只装 Skill（不用安装器）
-
-把整个 `skills/outfit-me/` 目录复制到宿主的 Skills 位置，例如 Claude Code 项目的 `.claude/skills/outfit-me/`。不要只复制 `SKILL.md`，`references/`、`scripts/`、`schemas/`、`evals/` 要一起保留。手动复制不会改动宿主配置。
-
-### 必须：加载 Chrome 扩展（搜索与加购的前提）
+### 第二步：加载 Chrome 扩展并授权（搜索与加购的前提）
 
 **不加载扩展，就不具备任何商品搜索或加购能力。** 扩展已包含在仓库中：`integrations/commerce-browser-mcp/chrome-extension/`（`manifest.json`、`popup.html`、`popup.js`、`service-worker.js`）。它让 MCP 使用你自己授权的标签页，不需要复制浏览器登录状态。
 
-1. 先完成上面的安装器步骤；终端会打印持久化后的扩展目录，通常在 `~/.outfit-me/runtimes/commerce-<随机后缀>/component/chrome-extension/`。若只手动复制了 Skill，请直接使用仓库里的 `integrations/commerce-browser-mcp/chrome-extension/`。
+1. 第一步安装器完成后，终端会打印持久化后的扩展目录，通常在 `~/.outfit-me/runtimes/commerce-<随机后缀>/component/chrome-extension/`。
 2. Chrome 打开 `chrome://extensions`，右上角开启 **开发者模式**。
 3. 点击 **加载已解压的扩展程序**，选择上面那个 `chrome-extension` 目录（要选到含 `manifest.json` 的那一层）。
 4. 打开插件弹窗，填入安装器生成的端口（默认 `8765`）和令牌。令牌在本机 `.mcp.json` 和 `~/.outfit-me/runtimes/.../connection.json` 里，**不要发到聊天、不要提交到 Git**。
@@ -93,6 +93,18 @@ node <本仓库路径>/bin/setup.cjs setup --dry-run
 - [历史设计提案](docs/DESIGN.md)
 - [来源与许可证边界](THIRD_PARTY_NOTICES.md)
 - 数据与授权规则：`skills/outfit-me/references/`
+
+## Skill 依赖的 MCP 服务
+
+Outfit Me 的完整穿搭流程（天气决策 → 风格灵感 → 选购缺口）依赖三个专门的 MCP 连接器。安装器会自动配置内置的购物 MCP，其余外部连接器需独立配置：
+
+| 领域 | MCP 服务 | 来源与链接 | 说明与职责 |
+|---|---|---|---|
+| **选品与加购** | `outfit-me-commerce` | 本仓库内置：`integrations/commerce-browser-mcp/` | 浏览京东与淘宝/天猫公开页面、提取商品参数、受控单次加购。**必须配套加载 Chrome 扩展** |
+| **天气感知** | `qweather` | GitHub: [overstarry/qweather-mcp](https://github.com/overstarry/qweather-mcp)<br>凭据申请与配置：[和风天气官方平台](https://dev.qweather.com/docs/configuration/) | 提供出行日及旅行地的实时天气、逐日预报和降水预警，作为分层穿衣约束 |
+| **穿搭灵感** | `xiaohongshu` | GitHub: [xpzouying/xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp) | 提供真实场景的穿搭案例参考、色彩搭配与流行款式只读探索 |
+
+未配置天气或小红书 MCP 时，Skill 会友好降级，直接接受用户在对话中提供的文字描述、截图或天气信息，不会虚构查询结果。
 
 **发布状态：** npm 包 `outfit-me-agent` 未发布、名称可用性未核实；`package.json` 与 `docs/SETUP.md` 只描述发布后的计划，不能据此执行 `npx`。仓库当前只保证从本地克隆运行。
 

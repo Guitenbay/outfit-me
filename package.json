@@ -18,6 +18,7 @@
     "integrations/commerce-browser-mcp/chrome-extension/",
     "README.md",
     "LICENSE",
+    "logo.svg",
     "docs/SETUP.md",
     "THIRD_PARTY_NOTICES.md"
   ],
